@@ -1,0 +1,31 @@
+name: Virus Scan Action
+on:
+  workflow_dispatch:
+    inputs: {}
+  pull_request:
+    types:
+      - opened
+      - reopened
+
+permissions:
+  contents: read # actions/checkoutに必要
+
+jobs:
+  virusscan:
+    runs-on: windows-2022
+    timeout-minutes: 10
+    steps:
+      # ソースコードのチェックアウト
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ウィルススキャン
+      - name: Scan
+        run: |
+          # 定義ファイル更新
+          echo "Signature Update"
+          C:"/Program Files/Windows Defender/MpCmdRun.exe" -SignatureUpdate -MMPC
+
+          # スキャン実行
+          echo "Start Scan"
+          C:"/Program Files/Windows Defender/MpCmdRun.exe" -Scan -ScanType 3 -File $env:GITHUB_WORKSPACE -DisableRemediation
